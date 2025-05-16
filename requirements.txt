@@ -5,5 +5,4 @@ scikit-learn
 PyPDF2
 openpyxl
 PyMuPDF
-sqlite3
 os
