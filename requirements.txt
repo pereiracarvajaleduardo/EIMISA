@@ -1,1 +1,9 @@
 Flask==2.3.2
+gunicorn
+pandas
+scikit-learn
+PyPDF2
+openpyxl
+PyMuPDF
+sqlite3
+os
