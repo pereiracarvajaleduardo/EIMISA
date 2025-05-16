@@ -1,0 +1,68 @@
+import os
+import shutil
+from PyPDF2 import PdfReader
+
+# Ruta base del proyecto
+RUTA_BASE = os.path.join(os.getcwd(), "k484")
+RUTA_ENTRADA = os.path.join(RUTA_BASE, "entrada")
+RUTA_NO_CLASIFICADOS = os.path.join(RUTA_BASE, "no_clasificados")
+
+# Palabras clave principales
+CARPETAS_PRINCIPALES = ["wsa", "sws", "tk"]
+SUBCARPETAS_TECNICAS = ["estructura", "eléctrico", "piping", "oocc"]
+
+def crear_estructura_base():
+    os.makedirs(RUTA_ENTRADA, exist_ok=True)
+    os.makedirs(RUTA_NO_CLASIFICADOS, exist_ok=True)
+    for principal in CARPETAS_PRINCIPALES:
+        principal_path = os.path.join(RUTA_BASE, principal)
+        os.makedirs(principal_path, exist_ok=True)
+        for sub in SUBCARPETAS_TECNICAS:
+            os.makedirs(os.path.join(principal_path, sub), exist_ok=True)
+
+def leer_pdf(path):
+    try:
+        reader = PdfReader(path)
+        texto = ""
+        for page in reader.pages[:3]:  # Leer solo primeras páginas
+            texto += page.extract_text() or ""
+        return texto.lower()
+    except Exception as e:
+        print(f"Error leyendo {path}: {e}")
+        return ""
+
+def clasificar_pdf(nombre_archivo):
+    ruta_pdf = os.path.join(RUTA_ENTRADA, nombre_archivo)
+    contenido = leer_pdf(ruta_pdf)
+
+    # Buscar carpeta principal
+    destino_principal = next((key for key in CARPETAS_PRINCIPALES if key in contenido), None)
+
+    if destino_principal:
+        # Buscar subcarpeta técnica
+        subcarpeta = next((sub for sub in SUBCARPETAS_TECNICAS if sub in contenido), None)
+        if subcarpeta:
+            destino = os.path.join(RUTA_BASE, destino_principal, subcarpeta)
+        else:
+            destino = os.path.join(RUTA_BASE, destino_principal, "otros")
+            os.makedirs(destino, exist_ok=True)
+    else:
+        destino = RUTA_NO_CLASIFICADOS
+
+    mover_y_reemplazar(ruta_pdf, os.path.join(destino, nombre_archivo))
+
+def mover_y_reemplazar(src, dst):
+    if os.path.exists(dst):
+        os.remove(dst)
+    shutil.move(src, dst)
+    print(f"✔️ Movido a: {dst}")
+
+def main():
+    crear_estructura_base()
+    archivos = [f for f in os.listdir(RUTA_ENTRADA) if f.lower().endswith(".pdf")]
+    for archivo in archivos:
+        print(f"📄 Analizando: {archivo}")
+        clasificar_pdf(archivo)
+
+if __name__ == "__main__":
+    main()

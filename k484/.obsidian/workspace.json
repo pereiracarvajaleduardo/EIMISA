@@ -1,0 +1,180 @@
+{
+  "main": {
+    "id": "c1353c9670ecaea0",
+    "type": "split",
+    "children": [
+      {
+        "id": "fe1871b04b512681",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ba7eca91d78014bb",
+            "type": "leaf",
+            "state": {
+              "type": "pdf",
+              "state": {
+                "file": "wsa/K484-0000-0000-MR-4100-01-C3808-CA5015-0001_1.pdf"
+              },
+              "icon": "lucide-file-text",
+              "title": "K484-0000-0000-MR-4100-01-C3808-CA5015-0001_1"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "21eb5c78329ab933",
+    "type": "split",
+    "children": [
+      {
+        "id": "008dc6af49c83a0f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c1e7c09a297eaf0f",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "d3dd0be89d6f5862",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Buscar"
+            }
+          },
+          {
+            "id": "a80f38f73cd5b992",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Marcadores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "ec6dac1d992efc36",
+    "type": "split",
+    "children": [
+      {
+        "id": "df7af670c06ba8a3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e5a33fca61ed310b",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Enlaces entrantes"
+            }
+          },
+          {
+            "id": "c19626aba7d039d1",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Enlaces salientes"
+            }
+          },
+          {
+            "id": "923e3336b7bcf7a5",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Etiquetas"
+            }
+          },
+          {
+            "id": "502b5244afb4d1af",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Esquema"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false
+    }
+  },
+  "active": "ba7eca91d78014bb",
+  "lastOpenFiles": [
+    "tk/piping",
+    "tk/eléctrico",
+    "tk/estructura",
+    "sws/piping",
+    "sws/eléctrico",
+    "sws/estructura",
+    "wsa/piping",
+    "wsa/eléctrico",
+    "wsa/estructura",
+    "entrada/2025_05-08_11-35_ANX-001-02_FE_Anexo_cambio_cargo_Eduardo_Andres_Pereira_Carvajal_F389-157.pdf",
+    "no_clasificados/2025_05-08_11-35_ANX-001-02_FE_Anexo_cambio_cargo_Eduardo_Andres_Pereira_Carvajal_F389-157.pdf"
+  ]
+}

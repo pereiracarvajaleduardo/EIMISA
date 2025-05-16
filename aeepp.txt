@@ -1,0 +1,177 @@
+from flask import Flask, request, jsonify, send_from_directory, render_template_string
+import os
+import sqlite3
+import datetime
+import fitz  # PyMuPDF para extraer texto de PDFs
+from nltk.tokenize import TreebankWordTokenizer
+
+app = Flask(__name__)
+FOLDER_PATH = "./k484"
+tokenizer = TreebankWordTokenizer()
+
+# 🔹 Crear base de datos para historial de búsquedas y texto indexado
+def init_db():
+    conn = sqlite3.connect("search_history.db")
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS history (query TEXT, timestamp TEXT)")
+    c.execute("CREATE TABLE IF NOT EXISTS index_pdf (file_path TEXT PRIMARY KEY, content TEXT)")
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# 🔹 Indexar PDFs antes de realizar búsquedas
+def index_pdfs():
+    conn = sqlite3.connect("search_history.db")
+    c = conn.cursor()
+
+    for root, _, files in os.walk(FOLDER_PATH):
+        for file in files:
+            if not file.lower().endswith('.pdf'):
+                continue
+
+            full_path = os.path.join(root, file)
+
+            # Verificar si el archivo ya está en la base de datos
+            c.execute("SELECT file_path FROM index_pdf WHERE file_path=?", (full_path,))
+            if c.fetchone():
+                continue  # Ya está indexado
+
+            try:
+                with fitz.open(full_path) as doc:
+                    content = " ".join([page.get_text() for page in doc])
+                    c.execute("INSERT INTO index_pdf VALUES (?, ?)", (full_path, content))
+            except Exception as e:
+                print(f"Error al indexar {file}: {e}")
+
+    conn.commit()
+    conn.close()
+
+index_pdfs()  # Ejecuta la indexación al iniciar la aplicación
+
+@app.route('/')
+def index():
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>k484 - Buscador de PDF</title>
+        <style>
+            body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+            .dark-mode { background: #2b2b2b; color: white; }
+            input[type="text"] { width: 300px; padding: 5px; }
+            button { padding: 6px 10px; }
+            ul { list-style: none; padding: 0; margin-top: 20px; }
+            li { margin: 5px 0; }
+            a { text-decoration: none; color: blue; }
+        </style>
+    </head>
+    <body>
+        <h1>📁 k484</h1>
+        <button onclick="toggleDarkMode()">Modo Oscuro</button>
+        <input type="text" id="searchInput" placeholder="Buscar archivos..." onkeyup="getSuggestions()">
+        <button onclick="performSearch()">Buscar</button>
+
+        <h3>Sugerencias:</h3>
+        <ul id="suggestions"></ul>
+
+        <h3>Resultados:</h3>
+        <ul id="results"></ul>
+
+        <script>
+            function toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+            }
+
+            function getSuggestions() {
+                const query = document.getElementById('searchInput').value;
+                fetch('/suggestions?q=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        const suggestionsList = document.getElementById('suggestions');
+                        suggestionsList.innerHTML = '';
+                        data.forEach(suggestion => {
+                            const item = document.createElement('li');
+                            item.innerText = suggestion;
+                            item.onclick = () => {
+                                document.getElementById('searchInput').value = suggestion;
+                                performSearch();
+                            };
+                            suggestionsList.appendChild(item);
+                        });
+                    });
+            }
+
+            function performSearch() {
+                const query = document.getElementById('searchInput').value;
+                fetch('/search?q=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        const results = document.getElementById('results');
+                        results.innerHTML = '';
+
+                        if (Object.keys(data).length === 0) {
+                            results.innerHTML = '<li>No se encontraron resultados.</li>';
+                        } else {
+                            for (const folder in data) {
+                                const folderItem = document.createElement('li');
+                                folderItem.innerHTML = `<strong>📂 ${folder}</strong>`;
+                                results.appendChild(folderItem);
+
+                                const fileList = document.createElement('ul');
+                                data[folder].forEach(fileInfo => {
+                                    const item = document.createElement('li');
+                                    const link = document.createElement('a');
+                                    link.href = '/view/' + fileInfo["ruta"];
+                                    link.innerText = fileInfo["archivo"];
+                                    
+                                    const preview = document.createElement('p');
+                                    preview.innerText = `Vista previa: ${fileInfo["vista_previa"]}`;
+
+                                    item.appendChild(link);
+                                    item.appendChild(preview);
+                                    fileList.appendChild(item);
+                                });
+
+                                results.appendChild(fileList);
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error en la búsqueda:', error));
+            }
+        </script>
+    </body>
+    </html>
+    """)
+
+@app.route('/search')
+def search_files():
+    query = request.args.get('q', '').lower()
+    query_tokens = tokenizer.tokenize(query) if query else []
+
+    conn = sqlite3.connect("search_history.db")
+    c = conn.cursor()
+    c.execute("INSERT INTO history VALUES (?, ?)", (query, str(datetime.datetime.now())))
+    conn.commit()
+
+    matching_files = {}
+
+    # 🔹 Buscar en el índice de PDFs en lugar de abrir cada archivo
+    c.execute("SELECT file_path, content FROM index_pdf")
+    for file_path, content in c.fetchall():
+        file_tokens = tokenizer.tokenize(os.path.basename(file_path).lower())
+        folder = os.path.dirname(os.path.relpath(file_path, FOLDER_PATH)) or "Raíz"
+
+        found_in_text = any(token in content.lower() for token in query_tokens) or query in content.lower()
+        found_in_name = any(token in file_tokens for token in query_tokens)
+
+        if found_in_text or found_in_name:
+            if folder not in matching_files:
+                matching_files[folder] = []
+            matching_files[folder].append({"archivo": os.path.basename(file_path), "ruta": file_path, "vista_previa": content[:200] + "..."})
+
+    conn.close()
+    return jsonify(matching_files)
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
