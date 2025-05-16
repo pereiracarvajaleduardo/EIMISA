@@ -4,5 +4,4 @@ pandas
 scikit-learn
 PyPDF2
 openpyxl
-PyMuPDF==1.22.5
 os
