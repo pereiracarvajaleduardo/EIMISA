@@ -5,3 +5,4 @@ scikit-learn
 PyPDF2
 openpyxl
 PyMuPDF
+nltk
