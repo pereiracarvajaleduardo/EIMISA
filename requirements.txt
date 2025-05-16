@@ -4,4 +4,4 @@ pandas
 scikit-learn
 PyPDF2
 openpyxl
-os
+PyMuPDF
